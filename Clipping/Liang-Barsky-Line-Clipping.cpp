@@ -1,9 +1,9 @@
-/**
-  * Liang Barsky Line Clipping
-  * Fixed Bug
+/** Lian Barksy Line Clipping
   * V0.2
+  * Author - E.V.Subramanian
+  * Usage  - Just Press C
+  * NOTE   - not interactive shall be converted soon
   */
-
 #include<windows.h>
 #include<GL/glut.h>
 
