@@ -1,15 +1,14 @@
-/** Polygon Filling
-  * V1.0
+/** Polygon Scan Fill
+  * V2.0
   * Author - E.V.Subramanian
   * Usage  - click on the canvas to seed the points of the polygon
   *          press d - to draw the seeded polygon
-  * 		 press s - to initiate the scan fill.
+  *          press s - to scan fill the above drawn polygon
+  *          press 0-9 - to change the fill color
   */
 
 #include <iostream>
-#include <windows.h>
 #include <math.h>
-#include <time.h>
 #include <GL/glut.h>
 #include <list>
 
@@ -25,6 +24,8 @@ void init(){
 int enter = 1, sz, gymin=480, gymax=0, parity=0;
 
 float** pts;
+
+float R = 1.0, G = 0.0, B = 0.0;
 
 class points{
     int x;
@@ -76,19 +77,14 @@ class lines{
 
 lines** line;
 
-void delay(float ms){
-    clock_t goal = ms + clock();
-    while(goal>clock());
-}
-
 void fillStrip(int y, int xstart, int xend){
-    glColor3f(0,0,1);
+    glColor3f(R,G,B);
     glBegin(GL_POINTS);
         glVertex2i(xstart,y);
         glVertex2i(xend,y);
     glEnd();
     glFlush();
-    glColor3f(1,0,0);
+    //glColor3f(R,G,B);
     if(parity==1){
         glBegin(GL_POINTS);
             for(int i=xstart+1;i<xend;i++)
@@ -243,16 +239,57 @@ void drawPolygon(){
     formLines();
 }
 
+void rgb(float r, float g, float b){
+    R = (r * 3.92)/1000;
+    G = (g * 3.92)/1000;
+    B = (b * 3.92)/1000;
+    glColor3f(R,G,B);
+    glBegin(GL_POLYGON);
+        glVertex2i(0,0);
+        glVertex2i(20,0);
+        glVertex2i(20,20);
+        glVertex2i(0,20);
+    glEnd();
+    glFlush();
+}
+
 void key(unsigned char key_t, int x, int y){
     if(key_t=='d'){
         enter = 0;
         drawPolygon();
     }
+    if(key_t<=57 && key_t>=48){
+        int val = key_t - 48;
+        switch(val){
+            case 0: rgb(26.0, 188.0, 156.0);break;
+            case 1: rgb(46.0, 204.0, 113.0);break;
+            case 2: rgb(52.0, 152.0, 219.0);break;
+            case 3: rgb(155.0, 89.0, 182.0);break;
+            case 4: rgb(52.0, 73.0, 94.0);break;
+            case 5: rgb(255.0, 255.0, 255.0);break;
+            case 6: rgb(255.0, 0.0, 0.0);break;
+            case 7: rgb(231.0, 76.0, 60.0);break;
+            case 8: rgb(236.0, 240.0, 241.0);break;
+            case 9: rgb(149.0, 165.0, 166.0);break;
+        }
+    }
     if(key_t=='s'){
-        enter = 0;
+        enter = 1;
         scanFill();
+        in.empty();
     }
 }
+
+void drag_start(GLint x, GLint y){
+    y = 480-y;
+    glPointSize(4);
+    glBegin(GL_POINTS);
+        glVertex2i(x,y);
+    glEnd();
+    glFlush();
+    glPointSize(2);
+}
+
 
 void mouse(int btn, int state, int x, int y){
     y = 480-y;
@@ -263,6 +300,10 @@ void mouse(int btn, int state, int x, int y){
             if(enter){
                 points* temp = new points(x,y);
                 in.push_front(temp);
+                glBegin(GL_POINTS);
+                    glVertex2i(x,y);
+                glEnd();
+                glFlush();
             }
         }
     }
@@ -282,6 +323,7 @@ int main(int argc, char** argv){
     glutCreateWindow("Many Amaze Very GL WOW");
     glutDisplayFunc(world);
     glutMouseFunc(mouse);
+    glutMotionFunc(drag_start);
     glutKeyboardFunc(key);
     init();
     glutMainLoop();
