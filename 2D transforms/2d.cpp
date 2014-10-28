@@ -272,6 +272,9 @@ void key(unsigned char key_t, int x, int y){
         transtrack = 0;
         sc = 0;
         strack = 0;
+		rot = 0;
+		rotrack = 0;
+		pencil = 0;
     }
     if(key_t=='q'){
         redraw();
